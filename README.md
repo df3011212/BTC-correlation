@@ -65,3 +65,20 @@ git push -u origin main
 ## 自動建置
 
 GitHub Actions 工作流程已放在 [dotnet-correlation-dashboard.yml](C:\Users\User\Documents\New project\.github\workflows\dotnet-correlation-dashboard.yml)，推到 GitHub 後會自動跑 restore、build、test。
+
+## GitHub Pages 自動更新版
+
+如果你想要像以前那樣「GitHub 自己每 15 分鐘更新頁面」，這個 repo 現在也可以支援：
+
+- 工作流程檔：`.github/workflows/update-correlation-pages.yml`
+- 更新腳本：`scripts/update_correlation_site.py`
+- 靜態網站輸出：`docs/index.html`
+
+設定方式：
+
+1. 到 GitHub repo 的 `Settings` -> `Pages`
+2. `Build and deployment` 選 `Deploy from a branch`
+3. Branch 選 `main`
+4. Folder 選 `/docs`
+
+之後 GitHub Actions 會每 15 分鐘更新一次 `docs/index.html`、`docs/correlation-data.json`、`docs/hot_symbols.txt`，GitHub Pages 也會直接顯示最新內容。

@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BTCUSDT.P 相關係數 (0.7~1.0) BTC漲 同漲</title>
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --panel: rgba(255, 251, 245, 0.9);
+      --ink: #1f2933;
+      --muted: #5e6b75;
+      --line: rgba(55, 40, 18, 0.12);
+      --accent: #b45309;
+      --positive: #166534;
+      --negative: #b42318;
+      --shadow: 0 26px 60px rgba(72, 48, 21, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255, 205, 124, 0.52), transparent 28%),
+        radial-gradient(circle at top right, rgba(255, 244, 213, 0.72), transparent 30%),
+        linear-gradient(180deg, #fffaf1 0%, #f3eee3 52%, #ebe4d8 100%);
+    }
+    .shell { width: min(1200px, calc(100% - 24px)); margin: 0 auto; padding: 24px 0 40px; }
+    .hero, .strip > div, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.3fr .8fr;
+      gap: 18px;
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 0; font-size: clamp(32px, 4vw, 54px); line-height: .95; }
+    p { line-height: 1.7; }
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .chip {
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: rgba(255, 245, 231, 0.9);
+      color: #8c5100;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .spotlight {
+      padding: 20px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,248,238,.96), rgba(252,244,232,.92));
+    }
+    .spotlight .dir { font-size: 14px; font-weight: 800; }
+    .spotlight .price { font-size: 42px; font-weight: 800; margin: 8px 0; }
+    .trend-up { color: var(--positive); }
+    .trend-down { color: var(--negative); }
+    .trend-flat { color: #475467; }
+    .strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .strip > div { padding: 18px; }
+    .strip .label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .panel { padding: 22px; }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-end;
+      margin-bottom: 16px;
+    }
+    .summary { color: var(--muted); margin-bottom: 16px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+    }
+    .result-card {
+      background: rgba(255,255,255,.82);
+      border: 1px solid rgba(55, 40, 18, 0.09);
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .result-top, .metrics {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .result-top h3 { margin: 0; font-size: 28px; }
+    .sub, .label { color: var(--muted); }
+    .corr {
+      background: rgba(31,41,51,.06);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .metric {
+      display: grid;
+      gap: 4px;
+    }
+    .label {
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .empty-state {
+      padding: 18px;
+      border: 1px dashed rgba(180, 83, 9, 0.28);
+      border-radius: 18px;
+      color: var(--muted);
+    }
+    a.download {
+      color: inherit;
+      font-weight: 700;
+    }
+    @media (max-width: 900px) {
+      .hero, .strip { grid-template-columns: 1fr; }
+      .panel-head, .result-top, .metrics { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">GitHub Pages Auto Update</p>
+        <h1>BTCUSDT.P 相關係數 (0.7~1.0) BTC漲 同漲</h1>
+        <p>
+          GitHub Actions 每 15 分鐘自動更新一次。使用 Bitget USDT 永續合約的
+          15m × 20 根 K 線 收盤價，計算 BTCUSDT.P 與其他標的的相關係數，
+          並保留相關係數介於 0.70 ~ 1.00、且和 BTC 最新方向一致的標的。
+        </p>
+        <div class="chips">
+          <span class="chip">15m × 20 根 K 線</span>
+          <span class="chip">相關係數 0.70 ~ 1.00</span>
+          <span class="chip">資料源 Bitget USDT 永續合約</span>
+        </div>
+      </div>
+      <div class="spotlight">
+        <div class="dir trend-down">BTC 最新 15 分鐘下跌</div>
+        <div class="price trend-down">-0.02%</div>
+        <div>BTC 最新價格 <strong>71175.3</strong></div>
+        <div style="margin-top: 10px; color: var(--muted);">下次排程 2026-03-14 03:35:27</div>
+      </div>
+    </section>
+
+    <section class="strip">
+      <div><span class="label">最後更新</span><strong>2026-03-14 03:20:27</strong></div>
+      <div><span class="label">掃描合約數</span><strong>538</strong></div>
+      <div><span class="label">符合條件數</span><strong>81</strong></div>
+      <div><span class="label">TXT 清單</span><a class="download" href="hot_symbols.txt">下載代號</a></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Filter Rule</p>
+          <h2 style="margin:0;">篩選結果</h2>
+        </div>
+        <div class="summary">目前 BTC 在下跌，因此列表改為保留和 BTC 最新 15 分鐘同方向下跌，且相關係數介於 0.70 到 1.00 的標的。</div>
+      </div>
+      
+      <div class="grid">
+        
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ETHUSDT</h3>
+                  <div class="sub">ETHUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9915</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.05%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>2102.08</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>AAVEUSDT</h3>
+                  <div class="sub">AAVEUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9824</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.04%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>112.76</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>VIRTUALUSDT</h3>
+                  <div class="sub">VIRTUALUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9791</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.08%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.7344</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>AVAXUSDT</h3>
+                  <div class="sub">AVAXUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9770</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.02%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>9.768</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>XRPUSDT</h3>
+                  <div class="sub">XRPUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9767</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.01%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>1.3991</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>SPXUSDT</h3>
+                  <div class="sub">SPXUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9672</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.06%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.3143</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>KASUSDT</h3>
+                  <div class="sub">KASUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9656</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.20%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.03019</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>PENGUUSDT</h3>
+                  <div class="sub">PENGUUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9462</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.03%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.00736</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>1MBABYDOGEUSDT</h3>
+                  <div class="sub">1MBABYDOGEUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9456</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.05%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.0004254</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ENSUSDT</h3>
+                  <div class="sub">ENSUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9404</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.07%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>6.124</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>1INCHUSDT</h3>
+                  <div class="sub">1INCHUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9358</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.10%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.0978</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ATOMUSDT</h3>
+                  <div class="sub">ATOMUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9299</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.03%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>1.8563</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>STRKUSDT</h3>
+                  <div class="sub">STRKUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9280</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.05%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.040829</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>DOTUSDT</h3>
+                  <div class="sub">DOTUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9275</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.14%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>1.473</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>SUPERUSDT</h3>
+                  <div class="sub">SUPERUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9263</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.09%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.1161</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>AXSUSDT</h3>
+                  <div class="sub">AXSUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9237</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.09%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>1.142</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>CHILLGUYUSDT</h3>
+                  <div class="sub">CHILLGUYUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9111</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.21%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.00969</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ENAUSDT</h3>
+                  <div class="sub">ENAUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9102</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.09%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.1092</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>RONUSDT</h3>
+                  <div class="sub">RONUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9098</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.20%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.1012</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>NOTUSDT</h3>
+                  <div class="sub">NOTUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9056</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.07%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.000404</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>PIUSDT</h3>
+                  <div class="sub">PIUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.9042</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.26%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.23</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ILVUSDT</h3>
+                  <div class="sub">ILVUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8968</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.20%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>4.045</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>SKYUSDT</h3>
+                  <div class="sub">SKYUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8950</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.09%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.0799</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ZKUSDT</h3>
+                  <div class="sub">ZKUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8930</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.10%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.01915</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>MAGICUSDT</h3>
+                  <div class="sub">MAGICUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8901</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.08%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.06516</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>IMXUSDT</h3>
+                  <div class="sub">IMXUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8890</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.06%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.1661</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>COWUSDT</h3>
+                  <div class="sub">COWUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8873</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.04%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.2361</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>XTZUSDT</h3>
+                  <div class="sub">XTZUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8791</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.13%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.3715</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>XLMUSDT</h3>
+                  <div class="sub">XLMUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8790</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.03%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.16243</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>NMRUSDT</h3>
+                  <div class="sub">NMRUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8788</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.03%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>7.683</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>MELANIAUSDT</h3>
+                  <div class="sub">MELANIAUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8782</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.24%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.1249</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>1000CATUSDT</h3>
+                  <div class="sub">1000CATUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8762</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.11%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.001841</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ZILUSDT</h3>
+                  <div class="sub">ZILUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8749</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.05%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.004141</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>DOGEUSDT</h3>
+                  <div class="sub">DOGEUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8748</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.04%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.09582</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>IOUSDT</h3>
+                  <div class="sub">IOUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8709</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.09%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.1135</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>BOMEUSDT</h3>
+                  <div class="sub">BOMEUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8706</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.11%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.0004566</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>GMEUSDT</h3>
+                  <div class="sub">GMEUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8704</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.04%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>23.68</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>COPPERUSDT</h3>
+                  <div class="sub">COPPERUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8655</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.07%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>5.735</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>RDNTUSDT</h3>
+                  <div class="sub">RDNTUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8636</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.09%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.00541</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>RAREUSDT</h3>
+                  <div class="sub">RAREUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8620</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.06%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.01619</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>GWEIUSDT</h3>
+                  <div class="sub">GWEIUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8602</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.66%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.04699</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>AKTUSDT</h3>
+                  <div class="sub">AKTUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8597</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.02%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.4356</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>AAPLUSDT</h3>
+                  <div class="sub">AAPLUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8578</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.02%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>250.85</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ICXUSDT</h3>
+                  <div class="sub">ICXUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8569</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.11%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.03691</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>BARDUSDT</h3>
+                  <div class="sub">BARDUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8536</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.16%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>1.1218</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ZORAUSDT</h3>
+                  <div class="sub">ZORAUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8525</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.12%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.01732</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>LRCUSDT</h3>
+                  <div class="sub">LRCUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8509</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.03%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.03089</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>FETUSDT</h3>
+                  <div class="sub">FETUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8476</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.17%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.1765</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>IDUSDT</h3>
+                  <div class="sub">IDUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8471</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.14%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.04223</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>MEGAUSDT</h3>
+                  <div class="sub">MEGAUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8266</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.07%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.13292</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>HAEDALUSDT</h3>
+                  <div class="sub">HAEDALUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8232</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.07%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.02725</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>KAVAUSDT</h3>
+                  <div class="sub">KAVAUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8224</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.09%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.05857</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>GOOGLUSDT</h3>
+                  <div class="sub">GOOGLUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8181</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.08%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>301.96</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>TRUMPUSDT</h3>
+                  <div class="sub">TRUMPUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8118</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.45%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>3.785</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>BCHUSDT</h3>
+                  <div class="sub">BCHUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8026</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.12%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>463.73</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>TUTUSDT</h3>
+                  <div class="sub">TUTUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8026</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.09%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.01089</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>BELUSDT</h3>
+                  <div class="sub">BELUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8016</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.10%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.1005</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>FUTUUSDT</h3>
+                  <div class="sub">FUTUUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.8016</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.05%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>142.34</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ZKCUSDT</h3>
+                  <div class="sub">ZKCUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7991</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.12%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.0846</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>EIGENUSDT</h3>
+                  <div class="sub">EIGENUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7972</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.16%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.1914</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>FFUSDT</h3>
+                  <div class="sub">FFUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7971</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.03%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.07406</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>AVGOUSDT</h3>
+                  <div class="sub">AVGOUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7968</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.28%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>323.91</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ENJUSDT</h3>
+                  <div class="sub">ENJUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7938</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.43%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.01843</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>RDDTUSDT</h3>
+                  <div class="sub">RDDTUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7851</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.13%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>131.9</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>DEEPUSDT</h3>
+                  <div class="sub">DEEPUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7847</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.03%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.0344</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>BANANAUSDT</h3>
+                  <div class="sub">BANANAUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7775</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.02%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>4.287</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>MORPHOUSDT</h3>
+                  <div class="sub">MORPHOUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7731</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.09%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>1.864</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>STBLUSDT</h3>
+                  <div class="sub">STBLUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7719</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.08%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.03569</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>QQQUSDT</h3>
+                  <div class="sub">QQQUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7715</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.02%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>594.35</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>LTCUSDT</h3>
+                  <div class="sub">LTCUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7635</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.04%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>55.44</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ESPUSDT</h3>
+                  <div class="sub">ESPUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7599</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.27%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.102252</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>MOODENGUSDT</h3>
+                  <div class="sub">MOODENGUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7583</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.11%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.05446</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>VANRYUSDT</h3>
+                  <div class="sub">VANRYUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7563</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.14%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.005066</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>1000RATSUSDT</h3>
+                  <div class="sub">1000RATSUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7550</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.16%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.04981</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>MASKUSDT</h3>
+                  <div class="sub">MASKUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7541</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.02%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.4531</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ACHUSDT</h3>
+                  <div class="sub">ACHUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7462</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.01%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.006826</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>SEIUSDT</h3>
+                  <div class="sub">SEIUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7427</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.10%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.06716</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ASMLUSDT</h3>
+                  <div class="sub">ASMLUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7365</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.13%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>1349.58</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>AZTECUSDT</h3>
+                  <div class="sub">AZTECUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7213</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.18%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.02236</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>ICPUSDT</h3>
+                  <div class="sub">ICPUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7120</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.08%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>2.619</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+
+            <article class="result-card">
+              <div class="result-top">
+                <div>
+                  <h3>NAORISUSDT</h3>
+                  <div class="sub">NAORISUSDT.P</div>
+                </div>
+                <span class="corr">Corr 0.7068</span>
+              </div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">15m 變化</span>
+                  <strong class="trend-down">-0.23%</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">最新收盤</span>
+                  <strong>0.06917</strong>
+                </div>
+                <div class="metric">
+                  <span class="label">方向</span>
+                  <strong>同方向</strong>
+                </div>
+              </div>
+            </article>
+            
+      </div>
+    </section>
+  </div>
+</body>
+</html>
